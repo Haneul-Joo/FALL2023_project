@@ -23,7 +23,7 @@ class DeckView(APIView, PageNumberPagination):
     Deck 생성
     """
     def post(self, request):
-        data = request.data
+        data = request.data.copy()
         data['owner'] = request.user.student_id
         serializer = DeckSerializer(data=data)
         if serializer.is_valid():
@@ -78,7 +78,7 @@ class FlashcardView(APIView, PageNumberPagination):
     특정 Deck에 대한 Flashcard 생성
     """
     def post(self, request, deck_id):
-        data = request.data
+        data = request.data.copy()
         data['owner'] = request.user.student_id
         data['deck'] = deck_id
         serializer = FlashcardSerializer(data=data)
