@@ -1,6 +1,7 @@
 .calendar {
   margin-left: -400px;
   font-size: 13px;
+  z-index: 1001;
 }
 
 .calendar tr, .calendar td { /*캘린더 테두리*/
@@ -53,6 +54,7 @@ a { /*글씨 색감*/
 }
 
 .clearfix {
+  z-index: 1002;
   margin-top: -770px;
   margin-left: 100px;
 }
