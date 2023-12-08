@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from quizzes.models import Deck, Flashcard
+from quizzes.models import Deck, Flashcard, UserVote
 
 
 class DeckSerializer(serializers.ModelSerializer):
@@ -32,3 +32,8 @@ class FlashcardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flashcard
         fields = '__all__'
+
+class UserVoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserVote
+        fields = ['user', 'flashcard', 'vote_type']

@@ -8,57 +8,39 @@
     <link rel="stylesheet" href="{% static 'css/attempt_quiz.css' %}">
 
 {#    javscript#}
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
 {% endblock %}
 
 {% block body_content %}
-      <div id="popup" class="containers">
-        <h2>로렘 입숨(lorem ipsum; 줄여서 립숨, lipsum)</h2>
-        <p>
-          로렘 입숨은 출판이나 그래픽 디자인 분야에서 폰트, 타이포그래피, 레이아웃
-          같은 그래픽 요소나 시각적 연출을 보여줄 때 사용하는 표준 채우기
-          텍스트로, 최종 결과물에 들어가는 실제적인 문장 내용이 채워지기 전에 시각
-          디자인 프로젝트 모형의 채움 글로도 이용된다. 이런 용도로 사용할 때 로렘
-          입숨을 그리킹(greeking)이라고도 부르며, 때로 로렘 입숨은 공간만 차지하는
-          무언가를 지칭하는 용어로도 사용된다. 로렘 입숨은 전통 라틴어와 닮은 점
-          때문에 종종 호기심을 유발하기도 하지만 그 이상의 의미를 담지는 않는다.
-          문서에서 텍스트가 보이면 사람들은 전체적인 프레젠테이션보다는 텍스트에
-          담긴 뜻에 집중하는 경향이 있어서 출판사들은 서체나 디자인을 보일 때는
-          프레젠테이션 자체에 초점을 맞추기 위해 로렘 입숨을 사용한다. 로렘 입숨은
-          영어에서 사용하는 문자들의 전형적인 분포에 근접하다고도 하는데, 이 점
-          때문에 프레젠테이션으로 초점을 이동하는 데에도 도움을 준다.
-        </p>
-        <a href="#" onclick="toggle()">Close</a>
-      </div>
-      <script type="text/javascript">
-        function toggle() {
-          var blur = document.getElementById('blur');
-          blur.classList.toggle('active');
-          var blur = document.getElementById('popup');
-          popup.classList.toggle('active');
-        }
-      </script>
-</div>
+
     <div class="outline_container_for_quiz">
-      <div class="input-subject">
-        <label for="userInput"> 원하는 과목명을 입력하세요:</label>
-        <input type="text" id="userInput-subject" name="userInput-subject">
-        <button id="submitButton">확인</button>
-      </div>
+{#      <div class="input-subject">#}
+{#          <label for="userInput"> 원하는 과목명을 입력하세요:</label>#}
+{#        <input type="text" id="userInput-subject" name="userInput-subject">#}
+{#        <button id="submitButton">확인</button>#}
+{#      </div>#}
         <div class="quiz-subject">
-          <h2>주제:</h2>
+          <h2>주제: {{ deck.name }}</h2>
           <!-- 이곳에 현재 풀고있는 퀴즈의 과목명과 단원 제목 덱에서 호출(미구현)-->
         </div>
+
         <div class="quiz-box">
           <!-- 이곳에 현재 풀고있는 퀴즈의 문제를 플래시카드에서 호출(미구현)-->
-          <h3 class="question-text">문제</h3>
-          <h3 class="answer-text">정답</h3>
+          <h3 class="question-text">{{ flashcard.question }}</h3>
+          <h3 class="answer-text">{{ flashcard.answer }}</h3>
         </div>
         <div class="quiz-buttons">
           <button class="button-answer">answer</button>
-          <button class="button-next">next quiz</button>
-          <button class="button-good"><span class="material-symbols-outlined">thumb_up</span></button>
-          <button class="button-bad"><span class="material-symbols-outlined">thumb_down</span></button>
+            {% if next_flashcard is None %}
+                <button class="button-next" onclick="location.href='/home/quizzes/{{ deck.id }}/'">finish</button>
+            {% else %}
+                <button class="button-next" onclick="location.href='/home/quizzes/{{ deck.id }}/cards/{{ next_flashcard.id }}'">next quiz</button>
+            {% endif %}
+          <button class="button-good" onclick="voteFlashcard({{ flashcard.id }}, 'up')"><span class="material-symbols-outlined">thumb_up</span></button>
+            <span id="vote-count-{{ flashcard.id }}">{{ flashcard.vote }}</span>
+
+          <button class="button-bad" onclick="voteFlashcard({{ flashcard.id }}, 'down')"><span class="material-symbols-outlined">thumb_down</span></button>
         </div>
         <div class="quiz-initial">
           Quiz for Sejong Univ Students
@@ -82,4 +64,43 @@
     });
   </script>
 
+    // 추천 수 관련 기능
+    {% csrf_token %}
+    <script>
+        function voteFlashcard(flashcardId, voteType) {
+            // Ajax를 사용하여 서버에 투표 정보 전송
+            $.ajax({
+                type: 'POST',
+                url: '/home/quizzes/{{ deck.id }}/cards/{{ flashcard.id }}/vote/',
+                data: {
+                    'flashcard_id': flashcardId,
+                    'vote_type': voteType,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'  // CSRF 토큰 추가 (Django에서 필요)
+                },
+                success: function(response) {
+                    // 서버에서 성공적으로 응답이 오면 화면 업데이트
+                    if (response.success) {
+                        // 예를 들어, 현재 투표수를 새로운 값으로 업데이트
+                        // response.new_vote_count를 서버에서 전송하는 투표수로 가정
+                        alert('투표가 반영되었습니다. 새로운 투표수: ' + response.new_vote_count);
+                        window.location.reload(); // 페이지 새로 고침
+                    } else {
+                        alert('투표 처리 중 오류가 발생했습니다.');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // 서버 오류 (500번대)일 때
+                    if (xhr.status >= 500 && xhr.status < 600) {
+                        alert('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                    } else if (xhr.status >= 400 && xhr.status < 500) {
+                        // 클라이언트 오류 (400번대)일 때
+                        alert('이미 투표했습니다');
+                    } else {
+                        // 그 외의 오류 처리
+                        alert('서버와 통신 중 오류가 발생했습니다.');
+                    }
+                }
+            });
+        }
+    </script>
 {% endblock %}

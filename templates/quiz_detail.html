@@ -74,6 +74,34 @@
 
     </div>
 
+    <div class="modal"> <!--모달창-->
+            <div class="modal_body"> <!--모달창 버튼을 눌렀을 때-->
+                <button class="btn-close-modal">X</button> <!--누르면 모달창이 꺼지는 버튼-->
+                <div class="quiz-form">
+                    <h2>Deck 수정</h2>
+                        {% csrf_token %}
+                        <form method="PUT" action="/home/quizzes/{{ deck_id }}">
+                            <div class="form-container"> <!-- 상자를 감싸는 부모 요소 -->
+                                <div class="center-input"> <!-- 입력 요소를 가운데 정렬하기 위한 부모 요소 -->
+                                    <label for="subject">과목:</label>
+                                    <input type="text" id="subject" name="subject" value="{{ subject }}" required>
+                                    <br>
+                                    <label for="name">퀴즈 이름:</label>
+                                    <input type="text" id="name" name="name" value="{{ name }}">
+                                    <br>
+                                    <label for="description">설명:</label>
+                                    <input type="text" id="description" name="description" value="{{ description }}">
+                                </div>
+                                <input type="submit" value="deck 수정">
+                            </div>
+                        </form>
+                    </div>
+                  <!--입력 방법 알려주는 텍스트-->
+                  <h3> </h3>
+                  <h3>*과목명을 입력할 때는 세종대학교 학사정보 시스템의 과목명과 똑같이 작성해 주기 바랍니다.</h3>
+                  <h3>단, 띄어쓰기 없이 작성해 주기 바랍니다.</h3>
+            </div>
+        </div>
     <!-- 버튼 관련 javascript -->
     <script>
         console.log("Deck flashcard ID:", {{ flashcard_ids }});
@@ -143,4 +171,52 @@ document.addEventListener("DOMContentLoaded", () => {
     </script>
 
 
+
+    <!-- 수정 - 모달 창 관련 javascript -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const modal = document.querySelector('.modal');
+            const btnOpenModal = document.querySelector('.btn-open-modal');
+            const btnCloseModal = document.querySelector('.btn-close-modal');
+
+            btnOpenModal.addEventListener("click", () => {
+            modal.style.display = "flex";
+            });
+            btnCloseModal.addEventListener("click", () => {
+            modal.style.display = "none";
+            });
+
+            const form = document.querySelector('.quiz-form form');
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault(); // 폼 기본 동작 방지
+                try {
+                    // Get form data using FormData
+                    const formData = new FormData(form);
+                    // Get CSRF token
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                    // Make a POST request using fetch
+                    const response = await fetch('/home/quizzes/{{ id }}/', {
+                        method: 'PUT',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRFToken': csrfToken,
+                        },
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        // If the request was successful, hide the modal and reload the page
+                        modal.style.display = "none";
+                        location.reload(); // Reload the page
+                    } else {
+                        // If there was an error, handle it accordingly
+                        console.error('Failed to update a deck:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('An error occurred during the PUT request:', error);
+                }
+            });
+        });
+    </script>
 {% endblock %}

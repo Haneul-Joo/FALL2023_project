@@ -53,6 +53,35 @@
             </div>
 
         </section>
+        
+        <div class="modal"> <!--모달창-->
+            <div class="modal_body"> <!--모달창 버튼을 눌렀을 때-->
+                <button class="btn-close-modal">X</button> <!--누르면 모달창이 꺼지는 버튼-->
+                <div class="quiz-form">
+                    <h2>퀴즈 형식 작성</h2>
+                        {% csrf_token %}
+                        <form method="POST" action="'/home/quizzes/'">
+                            <div class="form-container"> <!-- 상자를 감싸는 부모 요소 -->
+                                <div class="center-input"> <!-- 입력 요소를 가운데 정렬하기 위한 부모 요소 -->
+                                    <label for="subject">과목:</label>
+                                    <input type="text" id="subject" name="subject" required>
+                                    <br>
+                                    <label for="name">퀴즈 이름:</label>
+                                    <input type="text" id="name" name="name">
+                                    <br>
+                                    <label for="description">설명:</label>
+                                    <input type="text" id="description" name="description">
+                                </div>
+                                <input type="submit" value="형식 생성">
+                            </div>
+                        </form>
+                    </div>
+                  <!--입력 방법 알려주는 텍스트-->
+                  <h3> </h3>
+                  <h3>*과목명을 입력할 때는 세종대학교 학사정보 시스템의 과목명과 똑같이 작성해 주기 바랍니다.</h3>
+                  <h3>단, 띄어쓰기 없이 작성해 주기 바랍니다.</h3>
+            </div>
+        </div>
 
     </div>
 

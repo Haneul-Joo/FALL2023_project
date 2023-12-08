@@ -31,3 +31,15 @@ class Flashcard(models.Model):
     class Meta:
         db_table = "flashcard"
         ordering = ['id']
+
+
+class UserVote(models.Model):
+    user = models.ForeignKey(NewUserInfo, on_delete=models.CASCADE)
+    flashcard = models.ForeignKey(Flashcard, on_delete=models.CASCADE)
+    vote_type = models.CharField(max_length=4)  # 'up' 또는 'down'
+
+    class Meta:
+        # 중복 투표 방지
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'flashcard'], name='unique_user_flashcard_vote')
+        ]
