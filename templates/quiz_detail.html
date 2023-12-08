@@ -21,7 +21,7 @@
         <!-- 작성자만 볼 수 있는 버튼: 수정/삭제 추가 버튼  -->
         {% if user.student_id == owner %}
             <button class="btn-open-modal">수정하기</button>
-            <button class="btn-open-modal">삭제하기</button>
+            <button class="btn-open-modal btn-delete-deck" data-deck-id="{{ deck.id }}">삭제하기</button> <!--현재 구현 할 부분-->
         {% endif %}
         <br>
         <br>
@@ -79,7 +79,7 @@
         console.log("Deck flashcard ID:", {{ flashcard_ids }});
         // 동일한 동작을 수행하는 이벤트 리스너를 함수로 정의
         function handleMouseOver() {
-        if ({{ flashcards_count }} === 0) {
+        if ({{ flashcards_count }} == 0) {
           alert("문제가 존재하지 않습니다.");
         }
         }
@@ -94,5 +94,53 @@
           location.href = url;
         }
     </script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const deleteButton = document.querySelector('.btn-delete-deck');
+
+    deleteButton.addEventListener("click", async () => {
+        try {
+            // Ask for user confirmation
+            const userConfirmed = confirm("정말로 삭제하시겠습니까?");
+
+            if (!userConfirmed) {
+                return; // If the user cancels, do nothing
+            }
+
+            const deckId = window.location.pathname.split('/').slice(-2, -1)[0];
+
+            // Check if the csrfmiddlewaretoken element exists
+            const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+            const csrfToken = csrfTokenElement ? csrfTokenElement.value : '';
+
+            const response = await fetch(`/home/quizzes/${deckId}/delete/`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+            });
+
+            if (response.ok) {
+                // If the request was successful, go back to the quizzes page and reload it
+                window.location.href = "/home/quizzes/";
+            } else {
+                // If there was an error, handle it accordingly
+                console.error('Failed to delete the deck:', response.statusText);
+
+                // Optionally, display an error message to the user
+                alert('Failed to delete the deck. Please try again.');
+            }
+        } catch (error) {
+            console.error('An error occurred during the DELETE request:', error);
+
+            // Optionally, display an error message to the user
+            alert('An error occurred. Please try again.');
+        }
+    });
+});
+    </script>
+
 
 {% endblock %}

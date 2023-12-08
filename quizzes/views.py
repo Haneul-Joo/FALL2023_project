@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
@@ -79,9 +80,17 @@ class DeckDetailView(APIView, PageNumberPagination):
     Deck 삭제
     """
     def delete(self, request, deck_id):
-        deck = get_object_or_404(Deck, id=deck_id)
-        deck.delete()
-        return Response("삭제 성공", status=HTTP_204_NO_CONTENT)
+        try:
+            deck = get_object_or_404(Deck, id=deck_id)
+            deck.delete()
+            return JsonResponse({'message': 'Deck deleted successfully'})
+        except Exception as e:
+            # 디버깅을 위해 예외를 로그에 기록
+            print(f"An error occurred: {str(e)}")
+
+            # 적절한 오류 응답을 반환
+            return JsonResponse({'error': 'Internal Server Error'}, status=500)
+
 
 
 class FlashcardView(APIView, PageNumberPagination):
