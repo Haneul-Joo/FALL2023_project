@@ -9,6 +9,7 @@ Online flashcard quizzes & personalized calendar for Sejong
 https://github.com/Haneul-Joo/FALL2023_project/assets/72507602/f62d777f-b3a0-43fe-a1a6-9b9f64478621
 
 <기대 효과>
+
 세종대학교 학생들의 학습 효율을 향상시켜줄 것으로 기대함. (퀴즈 기능)
 
 체계적인 일정 관리로 학생들의 불안감을 덜어줄 수 있을 것으로 기대함. (과제 마감일, 등록금 납부 기간 등)
